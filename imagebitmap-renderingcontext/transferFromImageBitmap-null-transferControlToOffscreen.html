@@ -24,20 +24,24 @@ promise_test(function() {
         var bitmapCanvas = document.createElement('canvas');
         bitmapCanvas.width = width;
         bitmapCanvas.height = height;
-        var bitmapCtx = bitmapCanvas.getContext('bitmaprenderer');
-        bitmapCtx.transferFromImageBitmap(greenImage);
+        var offscreenCanvas = bitmapCanvas.transferControlToOffscreen();
+        var bitmapCtx = offscreenCanvas.getContext('bitmaprenderer');
+
+        // Todo (1192699), below bitmapCanvas should be use to test this,
+        // we are using offscreenCanvas as it seems to be a bug.
 
         // Make sure the bitmap renderer canvas is filled correctly.
-        testCanvas(bitmapCanvas, 0, 255, 0, 255);
+        bitmapCtx.transferFromImageBitmap(greenImage);
+        testCanvas(offscreenCanvas, 0, 255, 0, 255);
 
         // Test if passing null resets the bitmap renderer canvas.
         // Drawing the resetted canvas cannot change the destination canvas.
         bitmapCtx.transferFromImageBitmap(null);
-        testCanvas(bitmapCanvas, 0, 0, 0, 0);
+        testCanvas(offscreenCanvas, 0, 0, 0, 0);
 
         // Test if we can redraw the bitmap canvas correctly after reset.
         bitmapCtx.transferFromImageBitmap(redImage);
-        testCanvas(bitmapCanvas, 255, 0, 0, 255);
+        testCanvas(offscreenCanvas, 255, 0, 0, 255);
     }
 
     var greenCanvas = document.createElement('canvas');
